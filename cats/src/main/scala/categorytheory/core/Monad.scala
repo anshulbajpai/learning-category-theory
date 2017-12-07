@@ -8,13 +8,13 @@ trait Monad[F[_]] {
 object Monad {
   def apply[F[_]](implicit instance: Monad[F]): Monad[F] = instance
 
-  trait Ops[F[_], A] {
+  private [core] trait Ops[F[_], A] {
     def typeClassInstance: Monad[F]
     def self: F[A]
     def flatMap[B](f: A => F[B]): F[B] = typeClassInstance.flatMap(self, f)
   }
 
-  trait ToMonadOps {
+  private [core] trait ToMonadOps {
     implicit def toMonadOps[F[_], A](target: F[A])(implicit instance: Monad[F]): Ops[F, A] = new Ops[F, A] {
       override val typeClassInstance = instance
       override val self = target

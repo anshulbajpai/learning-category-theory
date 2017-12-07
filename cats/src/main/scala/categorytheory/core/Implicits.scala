@@ -2,7 +2,7 @@ package categorytheory.core
 
 import ops._
 
-trait Implicits {
+private [core] trait Implicits {
 
   implicit class Function1Ops[A,B](target: (A) => B){
     def lift[F[_]: Functor] = Functor[F].lift(target)
