@@ -1,4 +1,4 @@
-package categorytheory.demo
+package categorytheory.demo.support
 
 import categorytheory.datatypes.{Just, Maybe, Nothing, Reader}
 
@@ -20,6 +20,8 @@ trait UserDomain {
     def findUser(userId: String): Maybe[User] = users.get(userId).fold[Maybe[User]](Nothing)(Just(_))
     def findFriends(user: User): List[User] = friends.getOrElse(user, List.empty)
   }
+
+  object UserRepository extends UserRepository
 
   case class User(id: String, name: String)
 

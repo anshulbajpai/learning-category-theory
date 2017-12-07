@@ -5,7 +5,9 @@ import categorytheory.core.{Functor, Monad, Monoid}
 case class Writer[L: Monoid, V](run: (L, V))
 
 object Writer {
-  import Monoid.ops._
+
+  import categorytheory.core.ops._
+
   implicit def writeMonad[L: Monoid] = new Monad[({type λ[α] = Writer[L,α]})#λ] with Functor[({type λ[α] = Writer[L,α]})#λ] {
     override def flatMap[A, B](w: Writer[L, A], f: A => Writer[L, B]) = {
       val newW = f(w.run._2)

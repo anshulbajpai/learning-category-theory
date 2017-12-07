@@ -1,7 +1,6 @@
-package categorytheory.demo
+package categorytheory.core
 
-import categorytheory.core.{Functor, Monad}
-import Monad.ops._
+import ops._
 
 trait Implicits {
 

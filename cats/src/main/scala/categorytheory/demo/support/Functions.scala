@@ -1,7 +1,7 @@
-package categorytheory.demo
+package categorytheory.demo.support
 
+import categorytheory.core.implicits._
 import categorytheory.datatypes.{Just, Maybe, Nothing, Writer}
-import categorytheory.core.MonoidImplicits._
 
 trait Functions {
 

@@ -14,8 +14,8 @@ object Functor {
     def map[B](f: A => B): F[B] = typeClassInstance.map(self, f)
   }
 
-  object ops {
-    implicit def toFunctorOps[F[_], A](target: F[A])(implicit instance: Functor[F]): Ops[F,A] = new Ops[F,A] {
+  trait ToFunctorOps {
+    implicit def toFunctorOps[F[_], A](target: F[A])(implicit instance: Functor[F]): Ops[F, A] = new Ops[F, A] {
       override val typeClassInstance = instance
       override val self = target
     }
@@ -27,7 +27,3 @@ trait FunctorImplicits {
     override def map[A, B](fa: In => A, f: A => B) = fa andThen f
   }
 }
-
-object FunctorImplicits extends FunctorImplicits
-
-

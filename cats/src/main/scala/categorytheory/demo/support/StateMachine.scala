@@ -1,4 +1,4 @@
-package categorytheory.demo
+package categorytheory.demo.support
 
 trait StateMachine {
 

@@ -13,8 +13,8 @@ object Applicative {
     def ap[B](Ff: F[A => B]): F[B] = typeClassInstance.ap(self, Ff)
   }
 
-  object ops {
-    implicit def toApplicativeOps[F[_], A](target: F[A])(implicit instance: Applicative[F]): Ops[F,A] = new Ops[F,A] {
+  trait ToApplicativeOps {
+    implicit def toApplicativeOps[F[_], A](target: F[A])(implicit instance: Applicative[F]): Ops[F, A] = new Ops[F, A] {
       override val typeClassInstance = instance
       override val self = target
     }
@@ -28,6 +28,3 @@ trait ApplicativeImplicits {
     }
   }
 }
-
-object ApplicativeImplicits extends ApplicativeImplicits
-
