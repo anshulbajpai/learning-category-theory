@@ -33,5 +33,7 @@ object Maybe {
 
     override def pure[A](a: A) = Just(a)
   }
+
+  def just[A](a: A): Maybe[A] = Just(a)
 }
 

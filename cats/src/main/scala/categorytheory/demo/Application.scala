@@ -1,23 +1,17 @@
-package categorytheory
+package categorytheory.demo
 
-import categorytheory.Application.Machine.{lockedMachine, unlockedMachine}
 import categorytheory.core.{Functor, Monad}
 import categorytheory.datatypes._
+import categorytheory.demo.Application.Machine.{lockedMachine, unlockedMachine}
+import Functor.ops._
+import Monad.ops._
+import categorytheory.core.Applicative.ops._
+import categorytheory.core.FunctorImplicits._
+import Maybe.just
 
-object Application extends App {
-
-  import categorytheory.core.Applicative.ops._
-  import Functor.ops._
-  import categorytheory.core.FunctorImplicits._
-  import Monad.ops._
+object Application extends App with Functions with Implicits with UserDomain with StateMachine {
 
   // Functor
-
-  private def just[A](a: A): Maybe[A] = Just(a)
-
-  val toLength: String => Int = _.length
-
-  val half: Double => Double = _ / 2
 
   println(just("Hello") map toLength)
 
@@ -25,16 +19,12 @@ object Application extends App {
 
   println(quarter(16))
 
-
   // Applicative
-
-  val sum: Double => Double => Double = { x => y => x + y }
 
   println(just(5.0) ap (just(3.0) map sum))
   println(just(5.0) ap (just(3.0) map sum map (_ map half)))
   println(just(5.0) ap sum.lift[Maybe].apply(just(3.0)))
 
-  val sqrt : Double => Maybe[Double] = x => if(x >= 0) Just(Math.sqrt(x)) else Nothing
 
   println(just(4.0) map sqrt map (_ map half))
   println(just(4.0) map sqrt map half.lift)
@@ -42,26 +32,14 @@ object Application extends App {
 
   // Monad
 
-  val log: Double => Maybe[Double] = x => if(x >= 0) Just(Math.log(x)) else Nothing
-
   println(just(100.0) flatMap log flatMap sqrt)
   println((log <==< sqrt)(100.0))
   println((log <==< sqrt)(-100.0))
-
-  implicit class Function1Ops[A,B](target: (A) => B){
-    def lift[F[_]: Functor] = Functor[F].lift(target)
-  }
-
-  implicit class MonadComposer[A, B, C, M[_]: Monad](target: A => M[B]) {
-    def <==<(f: B => M[C]): A => M[C] = target(_) flatMap f
-  }
 
 
   // Writer
 
   import categorytheory.core.MonoidImplicits._
-
-  def moduloNumber(x: Int) : Writer[List[String], Int] = Writer((List(s"moduling $x"), Math.abs(x)))
 
   val result: Writer[List[String], Int] = for {
     x <- moduloNumber(5)
@@ -75,27 +53,6 @@ object Application extends App {
 
   // Reader
 
-  trait UserRepository {
-    private val users = Map(
-      "user1" -> User("user1", "user 1"),
-      "user2" -> User("user2", "user 2"),
-      "user3" -> User("user3", "user 3"),
-      "user4" -> User("user4", "user 4")
-    )
-    private val friends = Map(
-      users("user1") -> List(users("user2"), users("user3")),
-      users("user2") -> List(users("user1")),
-      users("user3") -> List(users("user1"))
-    )
-
-    def findUser(userId: String): Maybe[User] = users.get(userId).fold[Maybe[User]](Nothing)(Just(_))
-    def findFriends(user: User): List[User] = friends.getOrElse(user, List.empty)
-  }
-
-  case class User(id: String, name: String)
-
-  def findUser(userId: String): Reader[UserRepository, Maybe[User]] = Reader(_.findUser(userId))
-  def findFriends(user: User): Reader[UserRepository, List[User]] = Reader(_.findFriends(user))
 
   def friendsName(userId: String): Reader[UserRepository, List[String]] = for {
     user <- findUser(userId)
@@ -110,20 +67,6 @@ object Application extends App {
   println(friendsName("user5").run(UserRepository))
 
   // State
-
-  sealed trait MachineState
-  case object Locked extends MachineState
-  case object Unlocked extends MachineState
-
-  type Candies = Int
-  type Coins = Int
-
-  case class Machine(locked: MachineState, candies: Candies, coins: Coins)
-
-  object Machine {
-    def lockedMachine(candies: Candies, coins: Coins) = Machine(Locked, candies, coins)
-    def unlockedMachine(candies: Candies, coins: Coins) = Machine(Unlocked, candies, coins)
-  }
 
   val Coin = State[Machine, Unit] {
     case Machine(Locked, candies, coins) if candies > 0 => (unlockedMachine(candies, coins + 1), ())
