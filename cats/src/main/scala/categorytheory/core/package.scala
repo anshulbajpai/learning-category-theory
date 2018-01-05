@@ -19,4 +19,7 @@ package object core {
     with ApplicativeImplicits
     with MonoidImplicits
 
+  type ~[F[_], G[_]] = Transformation[F, G]
+
+  type Id[A] = A
 }
