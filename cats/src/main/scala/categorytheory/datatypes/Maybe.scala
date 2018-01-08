@@ -1,6 +1,6 @@
 package categorytheory.datatypes
 
-import categorytheory.core.{Applicative, Functor, Monad}
+import categorytheory.core.Monad
 
 sealed trait Maybe[+A] {
   def getOrElse[B >: A](defaultValue: => B): B
@@ -14,17 +14,7 @@ case object Nothing extends Maybe[Nothing] {
 
 object Maybe {
 
-  implicit val maybe = new Functor[Maybe] with Applicative[Maybe] with Monad[Maybe]  {
-
-    override def map[A, B](fa: Maybe[A], f: A => B) = fa match {
-      case Just(a) => Just(f(a))
-      case Nothing => Nothing
-    }
-
-    override def ap[A, B](fa: Maybe[A], Ff: Maybe[A => B]) = (fa, Ff) match {
-      case (Just(a), Just(f)) => Just(f(a))
-      case _ => Nothing
-    }
+  implicit val maybe = new Monad[Maybe]  {
 
     override def flatMap[A, B](fa: Maybe[A], f: A => Maybe[B]) = fa match {
       case Just(a) => f(a)

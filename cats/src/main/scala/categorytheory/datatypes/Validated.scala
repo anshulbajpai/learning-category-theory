@@ -1,6 +1,6 @@
 package categorytheory.datatypes
 
-import categorytheory.core.{Applicative, Cartesian, Functor, Monoid}
+import categorytheory.core.{Applicative, Cartesian, Monoid}
 
 import scala.util.{Failure, Success, Try}
 
@@ -11,11 +11,7 @@ case class Valid[V](valid: V) extends Validated[Nothing, V]
 case class Invalid[I: Monoid](invalid: I) extends Validated[I, Nothing]
 
 object Validated {
-  implicit def validated[I: Monoid] = new Functor[({type λ[α] = Validated[I, α]})#λ] with Applicative[({type λ[α] = Validated[I, α]})#λ] with Cartesian[({type λ[α] = Validated[I, α]})#λ] {
-    override def map[A, B](validated: Validated[I, A], f: A => B): Validated[I, B] = validated match {
-      case Valid(valid) => Valid(f(valid))
-      case Invalid(invalid) => Invalid(invalid)
-    }
+  implicit def validated[I: Monoid] = new Applicative[({type λ[α] = Validated[I, α]})#λ] with Cartesian[({type λ[α] = Validated[I, α]})#λ] {
 
     override def ap[A, B](validated: Validated[I, A], validatedF: Validated[I, A => B]): Validated[I, B] = (validated, validatedF) match {
       case (Valid(validA), Valid(f)) => Valid(f(validA))
@@ -28,6 +24,8 @@ object Validated {
       val f: A => B => (A, B) = a => b => (a, b)
       ap(cb, map(ca, f))
     }
+
+    override def pure[A](a: A): Validated[I, A] = Valid(a)
   }
 
   def condition[I: Monoid, V](condition: => Boolean, `false`: => I, `true`: => V): Validated[I, V] =

@@ -1,7 +1,9 @@
 package categorytheory.core
 
-trait Applicative[F[_]] {
+trait Applicative[F[_]] extends Functor[F] {
   def ap[A, B](fa: F[A], Ff: F[A => B]): F[B]
+  def pure[A](a: A): F[A]
+  override def map[A, B](fa: F[A], f: A => B): F[B] = ap(fa, pure(f))
 }
 
 object Applicative {
@@ -26,5 +28,6 @@ private [core] trait ApplicativeImplicits {
     override def ap[A, B](fa: In => A, Ff: In => A => B) = { in =>
       Ff(in)(fa(in))
     }
+    override def pure[A](a: A): In => A = _ => a
   }
 }

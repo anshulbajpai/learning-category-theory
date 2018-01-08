@@ -1,6 +1,7 @@
 package categorytheory.demo
 
 import categorytheory.core.ops._
+import categorytheory.core.implicits._
 import categorytheory.datatypes.{Free, Id}
 import categorytheory.demo.support.OrdersLanguage
 
@@ -16,6 +17,17 @@ object FreeMonadDemo extends App with OrdersLanguage {
 
   import Id.id
 
-  smartTrade.foldMap(orderPrinter)
+  println(smartTrade.foldMap(orderPrinter))
+  println(smartTrade.foldMap(betterOrderPrinter))
+
+  val smartTradeWithList: Free[Order, Response] = for {
+    stocks <- listStocks()
+    _ <- stocks.traverse(stock => buy(stock, 100))
+    rsp <- sell("GOOGLE", 100)
+  } yield rsp
+
+
+  println(smartTradeWithList.foldMap(orderPrinter))
+  println(smartTradeWithList.foldMap(betterOrderPrinter))
 
 }
