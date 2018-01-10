@@ -1,6 +1,6 @@
 package categorytheory.demo.support
 
-import categorytheory.core.{Id, ~}
+import categorytheory.core.{Id, Inject, ~}
 import categorytheory.datatypes.Free
 import categorytheory.datatypes.Free.liftF
 
@@ -23,6 +23,13 @@ trait OrdersLanguage {
   def sell(stock: Symbol, quantity: Int): OrdersF[Response] = liftF[Order, Response](Sell(stock, quantity))
   def listStocks(): OrdersF[List[Symbol]] = liftF[Order, List[Symbol]](ListStocks())
 
+  class OrderI[F[_]](implicit I: Inject[Order, F]) {
+    def buyI(stock: Symbol, quantity: Int): Free[F, Response] = Free.inject[Order, F](Buy(stock, quantity))
+    def sellI(stock: Symbol, quantity: Int): Free[F, Response] = Free.inject[Order, F](Sell(stock, quantity))
+    def listStocksI(): Free[F, List[Symbol]] = Free.inject[Order, F](ListStocks())
+  }
+
+  implicit def orderI[F[_]](implicit I: Inject[Order, F]): OrderI[F] = new OrderI[F]
 
   val orderPrinter: Order ~ Id = new (Order ~ Id) {
     override def apply[A](fa: Order[A]): Id[A] = fa match {

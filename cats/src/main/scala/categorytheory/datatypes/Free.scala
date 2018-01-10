@@ -1,7 +1,7 @@
 package categorytheory.datatypes
 
 import categorytheory.core.ops._
-import categorytheory.core.{Monad, ~}
+import categorytheory.core.{Inject, Monad, ~}
 
 sealed trait Free[F[_], A]
 case class Pure[F[_], A](a: A) extends Free[F, A]
@@ -15,9 +15,9 @@ object Free {
     override def pure[A](a: A): Free[F, A] = Pure(a)
   }
 
-  implicit class FreeOps[F[_], A](target: Free[F,A]){
+  implicit class FreeOps[F[_], A](target: Free[F, A]) {
 
-    def foldMap[G[_]: Monad](transformation: F ~ G): G[A] = target match {
+    def foldMap[G[_] : Monad](transformation: F ~ G): G[A] = target match {
       case Pure(a) => implicitly[Monad[G]].pure(a)
       case Suspend(fa) => transformation(fa)
       case FlatMap(Pure(x), xToFreeA) => xToFreeA(x).foldMap(transformation)
@@ -28,4 +28,10 @@ object Free {
   }
 
   def liftF[F[_], A](fa: F[A]): Free[F, A] = Suspend(fa)
+
+  def inject[F[_], G[_]] = new PartialInject[F, G]
+
+  private[Free] class PartialInject[F[_], G[_]] {
+    def apply[A](fa: F[A])(implicit I: Inject[F, G]): Free[G, A] = liftF(I.inj(fa))
+  }
 }
