@@ -3,9 +3,9 @@ package categorytheory.demo
 import categorytheory.core.implicits._
 import categorytheory.core.ops._
 import categorytheory.datatypes.{Coproduct, Free, Id}
-import categorytheory.demo.support.{LoggingLanguage, OrdersLanguage}
+import categorytheory.demo.support.{AuditLanguage, LoggingLanguage, OrdersLanguage}
 
-object FreeMonadDemo extends App with OrdersLanguage with LoggingLanguage {
+object FreeMonadDemo extends App with OrdersLanguage with LoggingLanguage with AuditLanguage {
 
   import categorytheory.datatypes.Free.FreeOps
 
@@ -47,4 +47,29 @@ object FreeMonadDemo extends App with OrdersLanguage with LoggingLanguage {
 
   println(smartTradeWithLogs.foldMap(orderPrinter or logPrinter))
 
+  type AuditableTradeApp[A] = Coproduct[Audit, TradeApp, A]
+
+  def smartTradeWithAuditsAndLogs(implicit O: OrderI[AuditableTradeApp],
+                                  L: LogI[AuditableTradeApp],
+                                  A: AuditI[AuditableTradeApp]
+                                 ): Free[AuditableTradeApp, Response] = {
+    import A._
+    import L._
+    import O._
+
+    for {
+      _ <- infoI("I'm going to trade smartly")
+      _ <- userAction("ID102", "buy", List("APPL", "100"))
+      _ <- buyI("APPL", 200)
+      _ <- infoI("I'm going to trade even more smartly")
+      _ <- userAction("ID102", "buy", List("MSFT", "100"))
+      _ <- buyI("MSFT", 100)
+      _ <- userAction("ID102", "sell", List("GOOG", "100"))
+      rsp <- sellI("GOOG", 300)
+      _ <- systemAction("BACKOFFICE", "tradesCheck", List("ID102", "lastTrades"))
+      _ <- errorI("Wait, what?!")
+    } yield rsp
+  }
+
+  println(smartTradeWithAuditsAndLogs.foldMap(auditPrinter or (orderPrinter or logPrinter)))
 }
