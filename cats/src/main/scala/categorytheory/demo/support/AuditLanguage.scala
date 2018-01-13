@@ -1,6 +1,6 @@
 package categorytheory.demo.support
 
-import categorytheory.core.{Id, Inject, ~}
+import categorytheory.core.{Id, Inject, ~>}
 import categorytheory.datatypes.Free
 
 trait AuditLanguage {
@@ -22,7 +22,7 @@ trait AuditLanguage {
 
   implicit def auditI[F[_]](implicit inject: Inject[Audit, F]): AuditI[F] = new AuditI[F]()
 
-  val auditPrinter: Audit ~ Id = new (Audit ~ Id) {
+  val auditPrinter: Audit ~> Id = new (Audit ~> Id) {
     override def apply[A](fa: Audit[A]): Id[A] = fa match {
       case UserAction(user, action, values) => println(s"[USER Action] - user $user called $action with values $values")
       case SystemAction(job, action, values) => println(s"[SYSTEM Action] - $job called $action with values $values")

@@ -11,7 +11,13 @@ trait Transformation[F[_], G[_]] {
       override def apply[A](fa: Coproduct[F, H, A]): G[A] = fa.fold(self, h)
     }
 
-  def compose[E[_]](f: E ~ F): E ~ G = new (E ~ G) {
+  def compose[E[_]](f: E ~> F): E ~> G = new (E ~> G) {
     override def apply[A](ea: E[A]): G[A] = self(f(ea))
+  }
+
+  def andThen[H[_]](f: G ~> H): F ~> H = new (F ~> H) {
+    override def apply[A](fa: F[A]): H[A] = {
+      f(self(fa))
+    }
   }
 }

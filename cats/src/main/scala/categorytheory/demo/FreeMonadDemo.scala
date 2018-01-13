@@ -2,10 +2,10 @@ package categorytheory.demo
 
 import categorytheory.core.implicits._
 import categorytheory.core.ops._
-import categorytheory.datatypes.{Coproduct, Free, Id}
-import categorytheory.demo.support.{AuditLanguage, LoggingLanguage, OrdersLanguage}
+import categorytheory.datatypes.{Coproduct, Free}
+import categorytheory.demo.support.{AuditLanguage, LoggingLanguage, MessagingLanguage, OrdersLanguage}
 
-object FreeMonadDemo extends App with OrdersLanguage with LoggingLanguage with AuditLanguage {
+object FreeMonadDemo extends App with OrdersLanguage with LoggingLanguage with AuditLanguage with MessagingLanguage {
 
   import categorytheory.datatypes.Free.FreeOps
 
@@ -14,8 +14,6 @@ object FreeMonadDemo extends App with OrdersLanguage with LoggingLanguage with A
     _ <- buy("GOOGLE", 100)
     rsp <- sell("APPLE", 20)
   } yield rsp
-
-  import Id.id
 
   println(smartTrade.foldMap(orderPrinter))
   println(smartTrade.foldMap(betterOrderPrinter))
@@ -72,4 +70,8 @@ object FreeMonadDemo extends App with OrdersLanguage with LoggingLanguage with A
   }
 
   println(smartTradeWithAuditsAndLogs.foldMap(auditPrinter or (orderPrinter or logPrinter)))
+
+  println(smartTrade.foldMap(ordersToIdViaMessaging))
+
+  println(smartTradeWithAuditsAndLogs.foldMap(auditPrinter or (ordersToIdViaMessaging or logPrinter)))
 }

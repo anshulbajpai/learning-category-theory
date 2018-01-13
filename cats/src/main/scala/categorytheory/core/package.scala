@@ -22,7 +22,7 @@ package object core {
     with MonoidImplicits
     with TraverseImplicits
 
-  type ~[F[_], G[_]] = Transformation[F, G]
+  type ~>[F[_], G[_]] = Transformation[F, G]
 
   type Id[A] = A
 }

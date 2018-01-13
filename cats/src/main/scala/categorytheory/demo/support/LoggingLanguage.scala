@@ -1,6 +1,6 @@
 package categorytheory.demo.support
 
-import categorytheory.core.{Id, Inject, ~}
+import categorytheory.core.{Id, Inject, ~>}
 import categorytheory.datatypes.Free
 import categorytheory.datatypes.Free.{inject, liftF}
 
@@ -23,7 +23,7 @@ trait LoggingLanguage {
 
   implicit def logI[F[_]](implicit I: Inject[Log, F]): LogI[F] = new LogI[F]
 
-  def logPrinter = new (Log ~ Id) {
+  def logPrinter = new (Log ~> Id) {
     override def apply[A](fa: Log[A]): Id[A] = fa match {
       case Info(msg) => println(s"[Info] -  $msg")
       case Error(msg) => println(s"[Error] -  $msg")
