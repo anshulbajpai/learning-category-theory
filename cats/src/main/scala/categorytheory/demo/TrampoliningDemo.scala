@@ -1,5 +1,7 @@
 package categorytheory.demo
 
+import scala.annotation.tailrec
+
 object TrampoliningDemo extends App {
 
   def even(n: Int): Boolean = if (n == 0) true else odd(n - 1)
@@ -17,7 +19,7 @@ object TrampoliningDemo extends App {
   case class Call[A](thunk: () => Bounce[A]) extends Bounce[A]
 
   object Bounce {
-    def trampoline[A](bounce: Bounce[A]): A = bounce match {
+    @tailrec def trampoline[A](bounce: Bounce[A]): A = bounce match {
       case Done(a) => a
       case Call(thunk) => trampoline(thunk())
     }
@@ -28,6 +30,15 @@ object TrampoliningDemo extends App {
   def oddT(n: Int): Bounce[Boolean] = if (n == 0) Done(false) else Call(() => evenT(n - 1))
 
   import Bounce._
+
+//  println(trampoline(evenT(2)))
+//  println(trampoline(Call(() => oddT(1))))
+//  println(trampoline(oddT(1)))
+//  println(trampoline(Call(() => evenT(0))))
+//  println(trampoline(evenT(0)))
+//  println(trampoline(Done(true)))
+//  println(true)
+//
 
   println(trampoline(evenT(500)))
   println(trampoline(evenT(5001)))
