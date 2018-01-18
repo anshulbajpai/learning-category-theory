@@ -1,7 +1,7 @@
 package categorytheory.demo.support
 
 import categorytheory.core.{Id, Inject, ~>}
-import categorytheory.datatypes.Free
+import categorytheory.datatypes.FreeMonad
 
 trait AuditLanguage {
 
@@ -16,8 +16,8 @@ trait AuditLanguage {
   case class SystemAction(job: JobId, action: String, values: List[Values]) extends Audit[Unit]
 
   class AuditI[F[_]](implicit inject: Inject[Audit, F]) {
-    def userAction(user: UserId, action: String, values: List[Values]) = Free.inject(UserAction(user, action, values))
-    def systemAction(job: UserId, action: String, values: List[Values]) = Free.inject(SystemAction(job, action, values))
+    def userAction(user: UserId, action: String, values: List[Values]) = FreeMonad.inject(UserAction(user, action, values))
+    def systemAction(job: UserId, action: String, values: List[Values]) = FreeMonad.inject(SystemAction(job, action, values))
   }
 
   implicit def auditI[F[_]](implicit inject: Inject[Audit, F]): AuditI[F] = new AuditI[F]()

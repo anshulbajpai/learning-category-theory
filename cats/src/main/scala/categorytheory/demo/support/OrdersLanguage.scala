@@ -3,8 +3,8 @@ package categorytheory.demo.support
 import java.util.UUID.randomUUID
 
 import categorytheory.core.{Id, Inject, ~>}
-import categorytheory.datatypes.Free
-import categorytheory.datatypes.Free.liftF
+import categorytheory.datatypes.FreeMonad
+import categorytheory.datatypes.FreeMonad.liftF
 import categorytheory.core.ops._
 
 trait OrdersLanguage  {
@@ -21,16 +21,16 @@ trait OrdersLanguage  {
 
   case class ListStocks() extends Order[List[Symbol]]
 
-  type OrdersF[A] = Free[Order, A]
+  type OrdersF[A] = FreeMonad[Order, A]
 
   def buy(stock: Symbol, quantity: Int): OrdersF[Response] = liftF[Order, Response](Buy(stock, quantity))
   def sell(stock: Symbol, quantity: Int): OrdersF[Response] = liftF[Order, Response](Sell(stock, quantity))
   def listStocks(): OrdersF[List[Symbol]] = liftF[Order, List[Symbol]](ListStocks())
 
   class OrderI[F[_]](implicit I: Inject[Order, F]) {
-    def buyI(stock: Symbol, quantity: Int): Free[F, Response] = Free.inject[Order, F](Buy(stock, quantity))
-    def sellI(stock: Symbol, quantity: Int): Free[F, Response] = Free.inject[Order, F](Sell(stock, quantity))
-    def listStocksI(): Free[F, List[Symbol]] = Free.inject[Order, F](ListStocks())
+    def buyI(stock: Symbol, quantity: Int): FreeMonad[F, Response] = FreeMonad.inject[Order, F](Buy(stock, quantity))
+    def sellI(stock: Symbol, quantity: Int): FreeMonad[F, Response] = FreeMonad.inject[Order, F](Sell(stock, quantity))
+    def listStocksI(): FreeMonad[F, List[Symbol]] = FreeMonad.inject[Order, F](ListStocks())
   }
 
   implicit def orderI[F[_]](implicit I: Inject[Order, F]): OrderI[F] = new OrderI[F]

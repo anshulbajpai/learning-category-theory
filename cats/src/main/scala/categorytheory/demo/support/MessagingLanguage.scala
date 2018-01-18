@@ -3,8 +3,8 @@ package categorytheory.demo.support
 import java.util.UUID
 
 import categorytheory.core.{Id, ~>}
-import categorytheory.datatypes.Free
-import categorytheory.datatypes.Free.liftF
+import categorytheory.datatypes.FreeMonad
+import categorytheory.datatypes.FreeMonad.liftF
 import categorytheory.core.implicits._
 
 trait MessagingLanguage {
@@ -22,7 +22,7 @@ trait MessagingLanguage {
 
   case class Subscribe(channelId: ChannelId, filterBy: Condition) extends Messaging[Payload]
 
-  type MessagingF[A] = Free[Messaging, A]
+  type MessagingF[A] = FreeMonad[Messaging, A]
 
   def publish(channelId: ChannelId, source: SourceId, messageId: MessageId, payload: Payload): MessagingF[Response] =
     liftF[Messaging, Response](Publish(channelId, source, messageId, payload))

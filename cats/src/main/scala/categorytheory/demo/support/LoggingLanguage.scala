@@ -1,8 +1,8 @@
 package categorytheory.demo.support
 
 import categorytheory.core.{Id, Inject, ~>}
-import categorytheory.datatypes.Free
-import categorytheory.datatypes.Free.{inject, liftF}
+import categorytheory.datatypes.FreeMonad
+import categorytheory.datatypes.FreeMonad.{inject, liftF}
 
 trait LoggingLanguage {
 
@@ -11,14 +11,14 @@ trait LoggingLanguage {
   case class Info(msg: String) extends Log[Unit]
   case class Error(msg: String) extends Log[Unit]
 
-  type LogF[A] = Free[Log, A]
+  type LogF[A] = FreeMonad[Log, A]
 
   def info(msg: String) = liftF(Info(msg))
   def error(msg: String) = liftF(Error(msg))
 
   class LogI[F[_]](implicit I: Inject[Log, F]) {
-    def infoI(msg: String): Free[F, Unit] = inject[Log, F](Info(msg))
-    def errorI(msg: String): Free[F, Unit] = inject[Log, F](Error(msg))
+    def infoI(msg: String): FreeMonad[F, Unit] = inject[Log, F](Info(msg))
+    def errorI(msg: String): FreeMonad[F, Unit] = inject[Log, F](Error(msg))
   }
 
   implicit def logI[F[_]](implicit I: Inject[Log, F]): LogI[F] = new LogI[F]

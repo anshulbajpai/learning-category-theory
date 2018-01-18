@@ -2,14 +2,14 @@ package categorytheory.demo
 
 import categorytheory.core.implicits._
 import categorytheory.core.ops._
-import categorytheory.datatypes.{Coproduct, Free}
+import categorytheory.datatypes.{Coproduct, FreeMonad}
 import categorytheory.demo.support.{AuditLanguage, LoggingLanguage, MessagingLanguage, OrdersLanguage}
 
 object FreeMonadDemo extends App with OrdersLanguage with LoggingLanguage with AuditLanguage with MessagingLanguage {
 
-  import categorytheory.datatypes.Free.FreeOps
+  import categorytheory.datatypes.FreeMonad.FreeOps
 
-  val smartTrade: Free[Order, Response] = for {
+  val smartTrade: FreeMonad[Order, Response] = for {
     _ <- buy("APPLE", 50)
     _ <- buy("GOOGLE", 100)
     rsp <- sell("APPLE", 20)
@@ -18,7 +18,7 @@ object FreeMonadDemo extends App with OrdersLanguage with LoggingLanguage with A
   println(smartTrade.foldMap(orderPrinter))
   println(smartTrade.foldMap(betterOrderPrinter))
 
-  val smartTradeWithList: Free[Order, Response] = for {
+  val smartTradeWithList: FreeMonad[Order, Response] = for {
     stocks <- listStocks()
     _ <- stocks.traverse(stock => buy(stock, 100))
     rsp <- sell("GOOGLE", 100)
@@ -29,7 +29,7 @@ object FreeMonadDemo extends App with OrdersLanguage with LoggingLanguage with A
 
   type TradeApp[A] = Coproduct[Order, Log, A]
 
-  def smartTradeWithLogs(implicit O: OrderI[TradeApp], L: LogI[TradeApp]): Free[TradeApp, Response] = {
+  def smartTradeWithLogs(implicit O: OrderI[TradeApp], L: LogI[TradeApp]): FreeMonad[TradeApp, Response] = {
     import L._
     import O._
 
@@ -50,7 +50,7 @@ object FreeMonadDemo extends App with OrdersLanguage with LoggingLanguage with A
   def smartTradeWithAuditsAndLogs(implicit O: OrderI[AuditableTradeApp],
                                   L: LogI[AuditableTradeApp],
                                   A: AuditI[AuditableTradeApp]
-                                 ): Free[AuditableTradeApp, Response] = {
+                                 ): FreeMonad[AuditableTradeApp, Response] = {
     import A._
     import L._
     import O._
