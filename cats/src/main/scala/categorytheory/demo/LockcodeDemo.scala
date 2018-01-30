@@ -7,13 +7,12 @@ import categorytheory.core.ops._
 import categorytheory.core.{Id, ~>}
 import categorytheory.datatypes.{FreeMonad, State}
 
-
-object Execution extends App {
-  LockcodeDemoWithStateMonad
-  LockcodeDemoWithFreeMonad
+object LockedCodeDemo extends App {
+  FindLockCodeUsingStateMonad
+  FindLockCodeUsingFreeMonad
 }
 
-object LockcodeDemoWithStateMonad extends Commons {
+object FindLockCodeUsingStateMonad extends Commons {
 
   timedExecution {
     val findCodes = for {
@@ -74,7 +73,7 @@ object LockcodeDemoWithStateMonad extends Commons {
   }
 }
 
-object LockcodeDemoWithFreeMonad extends Commons {
+object FindLockCodeUsingFreeMonad extends Commons {
 
   import dsl._
   import interpreter._
