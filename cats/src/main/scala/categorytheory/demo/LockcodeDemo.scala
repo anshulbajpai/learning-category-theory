@@ -81,11 +81,11 @@ object FindLockCodeUsingFreeMonad extends Commons {
   timedExecution {
 
     val findCodes = for {
-      hint1Codes <- wellPlacedCodeHint((6, 8, 2), correct = 1)
-      hint2Codes <- wrongPlacedCodeHint((6, 1, 4), correct = 1)
-      hint3Codes <- wrongPlacedCodeHint((2, 0, 6), correct = 2)
+      hint1Codes <- wellPlacedCodeHint((6, 8, 2), correctDigitsCount = 1)
+      hint2Codes <- wrongPlacedCodeHint((6, 1, 4), correctDigitsCount = 1)
+      hint3Codes <- wrongPlacedCodeHint((2, 0, 6), correctDigitsCount = 2)
       hint4Codes <- allWrongCodeHint((7, 3, 8))
-      hint5Codes <- wrongPlacedCodeHint((7, 8, 0), correct = 1)
+      hint5Codes <- wrongPlacedCodeHint((7, 8, 0), correctDigitsCount = 1)
     } yield hint1Codes & hint2Codes & hint3Codes & hint4Codes & hint5Codes
 
     println(findCodes.foldMap(hintInterpeter))
@@ -95,8 +95,8 @@ object FindLockCodeUsingFreeMonad extends Commons {
   object algebra {
     sealed trait Hint[A]
 
-    case class WellPlacedCodeHint(code: Code, correct: Int) extends Hint[Set[Code]]
-    case class WrongPlacedCodeHint(code: Code, correct: Int) extends Hint[Set[Code]]
+    case class WellPlacedCodeHint(code: Code, correctDigitsCount: Int) extends Hint[Set[Code]]
+    case class WrongPlacedCodeHint(code: Code, correctDigitsCount: Int) extends Hint[Set[Code]]
     case class AllWrongCodeHint(code: Code) extends Hint[Set[Code]]
   }
 
@@ -105,8 +105,8 @@ object FindLockCodeUsingFreeMonad extends Commons {
 
     type FreeCombinations = FreeMonad[Hint, Set[Code]]
 
-    def wellPlacedCodeHint(code: Code, correct: Int): FreeCombinations = FreeMonad.liftF(WellPlacedCodeHint(code, correct))
-    def wrongPlacedCodeHint(code: Code, correct: Int): FreeCombinations = FreeMonad.liftF(WrongPlacedCodeHint(code, correct))
+    def wellPlacedCodeHint(code: Code, correctDigitsCount: Int): FreeCombinations = FreeMonad.liftF(WellPlacedCodeHint(code, correctDigitsCount))
+    def wrongPlacedCodeHint(code: Code, correctDigitsCount: Int): FreeCombinations = FreeMonad.liftF(WrongPlacedCodeHint(code, correctDigitsCount))
     def allWrongCodeHint(code: Code): FreeCombinations = FreeMonad.liftF(AllWrongCodeHint(code))
   }
 
